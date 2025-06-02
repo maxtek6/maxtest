@@ -63,7 +63,7 @@ Once the package has been imported, an executable can be created using the
 targets. Assume the file `main.cpp` has the example code from above:
 
 ```cmake
-maxtest_add_target(unittest main.cpp)
+maxtest_add_executable(unittest main.cpp)
 ```
 
 Using the `maxtest_add_test` command, declare each test name as declared in
@@ -71,7 +71,8 @@ the source file using `MAXTEST_TEST_CASE`:
 
 ```cmake
 # "" represents any additional args passed when the test is run
-maxtest_add_test(unittest test_name "")
+maxtest_add_test(unittest test_name)
+maxtest_add_test(unittest test_name_with_args arg1 arg2)
 ```
 
 ## Roadmap
