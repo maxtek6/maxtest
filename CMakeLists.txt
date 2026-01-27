@@ -2,12 +2,43 @@ cmake_minimum_required(VERSION 3.10)
 
 project(maxtest)
 
+include(GNUInstallDirs)
+
 option(MAXTEST_CTEST_INIT "Initialize CTest from this directory" ON)
 option(MAXTEST_TESTS "Build tests" OFF)
 
 add_library(maxtest INTERFACE)
-target_include_directories(maxtest INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-add_library(Maxtest::Maxtest ALIAS maxtest)
+target_include_directories(maxtest INTERFACE 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+install(
+    TARGETS maxtest
+    EXPORT MaxtestTargets
+)
+
+install(
+    FILES maxtest.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+    EXPORT MaxtestTargets
+    FILE MaxtestTargets.cmake
+    NAMESPACE maxtest::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/maxtest
+)
+
+# Create config file for FetchContent
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/maxtestConfig.cmake"
+    "include(\"\${CMAKE_CURRENT_LIST_DIR}/MaxtestTargets.cmake\")\n"
+)
+
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/maxtestConfig.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/maxtest
+)
 
 if(MAXTEST_CTEST_INIT)
     include(CTest)
@@ -18,7 +49,7 @@ set(CTEST_OUTPUT_ON_FAILURE ON)
 
 function(maxtest_add_executable TARGET_NAME)
     add_executable(${TARGET_NAME} ${ARGN})
-    target_link_libraries(${TARGET_NAME} PRIVATE Maxtest::Maxtest)
+    target_link_libraries(${TARGET_NAME} PRIVATE maxtest)
 endfunction()
 
 function(maxtest_add_test TARGET_NAME TEST_NAME)
