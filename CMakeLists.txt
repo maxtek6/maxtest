@@ -18,6 +18,13 @@ install(
     EXPORT MaxtestTargets
 )
 
+# Export targets to build tree for FetchContent
+export(
+    TARGETS maxtest
+    NAMESPACE maxtest::
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/MaxtestTargets.cmake"
+)
+
 install(
     FILES maxtest.hpp
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -30,14 +37,20 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/maxtest
 )
 
-# Create config file for FetchContent
+# Create config file for build tree (FetchContent)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/maxtestConfig.cmake"
     "include(\"\${CMAKE_CURRENT_LIST_DIR}/MaxtestTargets.cmake\")\n"
 )
 
+# Create config file for install tree
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/maxtestConfig-install.cmake"
+    "include(\"\${CMAKE_CURRENT_LIST_DIR}/MaxtestTargets.cmake\")\n"
+)
+
 install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/maxtestConfig.cmake"
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/maxtestConfig-install.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/maxtest
+    RENAME maxtestConfig.cmake
 )
 
 if(MAXTEST_CTEST_INIT)
