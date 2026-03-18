@@ -41,7 +41,7 @@ namespace maxtest
 {
     using test_map = std::unordered_map<std::string, std::function<void(const std::vector<std::string> &)>>;
 
-    void assert_condition(
+    inline void assert_condition(
         bool condition,
         const std::string &file,
         const std::string &function,
@@ -57,9 +57,7 @@ namespace maxtest
         }
     }
 
-    void declare_tests(test_map &tests);
-
-    std::pair<std::string, std::vector<std::string>> parse_args(int argc, const char **argv)
+    inline std::pair<std::string, std::vector<std::string>> parse_args(int argc, const char **argv)
     {
         std::string name;
         std::vector<std::string> args;
@@ -74,7 +72,7 @@ namespace maxtest
         return std::make_pair(name, args);
     }
 
-    void execute_tests(const test_map &tests, const std::string &name, const std::vector<std::string> &args)
+    inline void execute_tests(const test_map &tests, const std::string &name, const std::vector<std::string> &args)
     {
         auto test = tests.find(name);
         if (test != tests.end())
@@ -91,13 +89,14 @@ namespace maxtest
 #define MAXTEST_ASSERT(COND) maxtest::assert_condition((COND), __FILE__, __FUNCTION_NAME__, __LINE__, #COND)
 
 #define MAXTEST_MAIN                                                       \
+    static void declare_tests(maxtest::test_map &tests);                   \
     int main(int argc, const char **argv)                                  \
     {                                                                      \
         maxtest::test_map tests;                                           \
         int result(0);                                                     \
         if (argc > 1)                                                      \
         {                                                                  \
-            maxtest::declare_tests(tests);                                 \
+            declare_tests(tests);                                          \
             auto args = maxtest::parse_args(argc, argv);                   \
             try                                                            \
             {                                                              \
@@ -116,7 +115,7 @@ namespace maxtest
         }                                                                  \
         return result;                                                     \
     }                                                                      \
-    void maxtest::declare_tests(maxtest::test_map &tests)
+    void declare_tests(maxtest::test_map &tests)
 
 #define MAXTEST_TEST_CASE(NAME) \
     tests[#NAME] = [](const std::vector<std::string> &args)
